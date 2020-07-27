@@ -16,16 +16,13 @@ UnorderedSet *init_UnorderedSet(size_t num_buckets, int key_len)
             .num_buckets = -1,
             .num_elements = 0};
 
-        //int* r = malloc(sizeof(*r) * num_buckets); 
-        //GraphNode **t = malloc(sizeof(*t) * num_buckets);
-        
         set->table = malloc(sizeof(*(set->table)) * num_buckets);
         if (set->table != NULL)
         {
-            for (int i = 0; i < set->num_buckets; i++)
+            for(int i = 0; i < num_buckets; i++) 
             {
-                set->table[i] = NULL;
-            }
+                set->table[i] = NULL; 
+            }    
             set->num_buckets = num_buckets;
         }
     }
@@ -63,7 +60,7 @@ long hash(UnorderedSet *set, char *key)
         index |= getval(key[i]);
     }
     index = index % set->num_buckets;
-    printf("hash for %s = %ld\n", key, index);
+    //printf("hash for %s = %ld\n", key, index);
     return index;
 }
 
@@ -106,7 +103,7 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
                 .next = NULL};
 
             nd->key = malloc(sizeof(*(nd->key)) * ((*a_set)->key_len + 1));
-            strcpy(nd->key, key);
+            strcpy(nd->key, key); 
 
             long index = hash(*a_set, key);
             // link it to last if last exists
@@ -123,10 +120,11 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
             (*a_set)->num_elements += 1;
 
             // fix all edges
-            //char options[] = {'A', 'C', 'G', 'T'};
+            char options[] = {'A', 'C', 'G', 'T'};
             char *temp_key = malloc(sizeof(*temp_key) * ((*a_set)->key_len + 1));
 
             // fix out_edges for all possible nodes that can connect to this new node
+            //printf("fixing edges FROM other nodes TO new node\n");
             for (int i = 0; i < (*a_set)->key_len - 1; i++)
             {
                 temp_key[i + 1] = key[i];
@@ -137,6 +135,7 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
             for (int i = 0; i < 4; i++)
             {
                 temp_key[0] = options[i];
+                //printf("%s\n", temp_key);
                 temp_nd = find_GraphNode(*a_set, temp_key);
                 if (temp_nd != NULL)
                 {
@@ -148,6 +147,7 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
             }
 
             // fix in_edges for all possible nodes that can connect to this new node
+            //printf("fixing edges FROM new node TO other nodes\n"); 
             for (int i = 0; i < (*a_set)->key_len - 1; i++)
             {
                 temp_key[i] = key[i + 1];
@@ -157,6 +157,7 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
             for (int i = 0; i < 4; i++)
             {
                 temp_key[(*a_set)->key_len - 1] = options[i];
+                //printf("%s\n", temp_key);
                 temp_nd = find_GraphNode(*a_set, temp_key);
                 if (temp_nd != NULL)
                 {
@@ -166,7 +167,7 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
                     nd->out_degree += 1;
                 }
             }
-
+            free(temp_key);
             return 1;
         }
         return 0;
@@ -176,6 +177,7 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
 
 void resize_set(UnorderedSet **a_set)
 {
+    printf("resizing\n");
     UnorderedSet *new_set = init_UnorderedSet((*a_set)->num_buckets * GROWTH_MULTIPLIER, (*a_set)->key_len);
     if (new_set != NULL)
     {
@@ -265,7 +267,7 @@ void delete_UnorderedSet(UnorderedSet **a_set)
     *a_set = NULL;
 }
 
-int is_hub_node(GraphNode* nd) 
+int is_hub_node(GraphNode *nd)
 {
-    return (nd->in_degree != 1 && nd->out_degree != 1) ? 1: 0; 
+    return (nd->in_degree != 1 && nd->out_degree != 1) ? 1 : 0;
 }
