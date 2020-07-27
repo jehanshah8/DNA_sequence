@@ -12,13 +12,20 @@ UnorderedSet *init_UnorderedSet(size_t num_buckets, int key_len)
     {
         *set = (UnorderedSet){
             .key_len = key_len,
-            .table = malloc(sizeof(*(set->table)) * num_buckets),
+            .table = NULL,
             .num_buckets = -1,
             .num_elements = 0};
 
+        //int* r = malloc(sizeof(*r) * num_buckets); 
+        //GraphNode **t = malloc(sizeof(*t) * num_buckets);
+        
+        set->table = malloc(sizeof(*(set->table)) * num_buckets);
         if (set->table != NULL)
         {
-            memset(set->table, NULL, num_buckets);
+            for (int i = 0; i < set->num_buckets; i++)
+            {
+                set->table[i] = NULL;
+            }
             set->num_buckets = num_buckets;
         }
     }
@@ -56,7 +63,7 @@ long hash(UnorderedSet *set, char *key)
         index |= getval(key[i]);
     }
     index = index % set->num_buckets;
-    printf("hash for %s = %ld\n", key, set->key_len);
+    printf("hash for %s = %ld\n", key, index);
     return index;
 }
 
@@ -64,7 +71,7 @@ GraphNode *find_GraphNode(UnorderedSet *set, char *key)
 {
     long index = hash(set, key);
     GraphNode *temp = set->table[index];
-    while (temp->next != NULL && strcmp(key, temp->key) == 0)
+    while (temp != NULL && strcmp(key, temp->key) != 0)
     {
         temp = temp->next;
     }
@@ -82,11 +89,11 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
         // resize if needed
         if (load_factor > MAX_LOAD_FACTOR)
         {
-            resize_table(a_set);
+            resize_set(a_set);
         }
 
         // create a new GraphNode
-        GraphNode *nd = malloc(sizeof(*nd));
+        nd = malloc(sizeof(*nd));
         if (nd != NULL)
         {
 
@@ -116,7 +123,7 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
             (*a_set)->num_elements += 1;
 
             // fix all edges
-            char options[] = {'A', 'C', 'G', 'T'};
+            //char options[] = {'A', 'C', 'G', 'T'};
             char *temp_key = malloc(sizeof(*temp_key) * ((*a_set)->key_len + 1));
 
             // fix out_edges for all possible nodes that can connect to this new node
@@ -134,12 +141,12 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
                 if (temp_nd != NULL)
                 {
                     temp_nd->out_edges[i] = options[i];
-                    temp_nd->out_degree += 1; 
-                    nd->in_edges[i] = options[i]; 
-                    nd->in_degree += 1; 
+                    temp_nd->out_degree += 1;
+                    nd->in_edges[i] = options[i];
+                    nd->in_degree += 1;
                 }
             }
-            
+
             // fix in_edges for all possible nodes that can connect to this new node
             for (int i = 0; i < (*a_set)->key_len - 1; i++)
             {
@@ -154,9 +161,9 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
                 if (temp_nd != NULL)
                 {
                     temp_nd->in_edges[i] = options[i];
-                    temp_nd->in_degree += 1; 
-                    nd->out_edges[i] = options[i]; 
-                    nd->out_degree += 1; 
+                    temp_nd->in_degree += 1;
+                    nd->out_edges[i] = options[i];
+                    nd->out_degree += 1;
                 }
             }
 
@@ -164,6 +171,7 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
         }
         return 0;
     }
+    return 0;
 }
 
 void resize_set(UnorderedSet **a_set)
@@ -212,8 +220,8 @@ int remove_GraphNode(UnorderedSet **a_set, char *key)
 {
     long index = hash(*a_set, key);
     GraphNode *temp = (*a_set)->table[index];
-    GraphNode *prev;
-    while (temp != NULL && strcmp(key, temp->key) == 0)
+    GraphNode *prev = NULL;
+    while (temp != NULL && strcmp(key, temp->key) != 0)
     {
         prev = temp;
         temp = temp->next;
@@ -255,4 +263,9 @@ void delete_UnorderedSet(UnorderedSet **a_set)
     **a_set = (UnorderedSet){.table = NULL, .num_buckets = -1, .num_elements = 0};
     free(*a_set);
     *a_set = NULL;
+}
+
+int is_hub_node(GraphNode* nd) 
+{
+    return (nd->in_degree != 1 && nd->out_degree != 1) ? 1: 0; 
 }
