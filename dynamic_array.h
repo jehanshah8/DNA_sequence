@@ -20,8 +20,8 @@ typedef struct
 } DynamicArray;
 
 DynamicArray *init_DynamicArray(size_t capacity);
-void DynamicArray_insert(DynamicArray *da, long index, GNode *item);
-void DynamicArray_remove(DynamicArray *da, long index, GNode *item);
+int DynamicArray_insert(DynamicArray *da, long index, GNode *item);
+int DynamicArray_remove(DynamicArray *da, long index, GNode *item);
 DynamicArray* resize_DynamicArray(DynamicArray* da);  
 void delete_DynamicArray(DynamicArray *da);
 

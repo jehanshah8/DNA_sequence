@@ -6,6 +6,7 @@
 #include "genome.h"
 
 #define BUFFER_SIZE 255
+#define INITIAL_SIZE 16
 
 int main(int argc, char **argv)
 {

@@ -20,7 +20,7 @@ DynamicArray *init_DynamicArray(size_t capacity)
     return da;
 }
 
-void insert(DynamicArray *da, long index, GNode *item)
+int DynamicArray_insert(DynamicArray *da, long index, GNode *item)
 {
     // create a new node
     ListNode *nd = malloc(sizeof(*nd));
@@ -39,7 +39,43 @@ void insert(DynamicArray *da, long index, GNode *item)
             da->arr[index]->last->next = nd;
             da->arr[index]->last = nd;
         }
+        da->size += 1;
+        return 1;
     }
+    return 0;
+}
+
+int DynamicArray_remove(DynamicArray *da, long index, GNode *item)
+{
+    ListNode *temp = da->arr[index];
+    ListNode *prev = NULL;
+
+    // If head node contains iteam to be deleted
+    if (temp != NULL && strcmp(item->key, temp->data->key) == 0)
+    {
+        da->arr[index] = temp->next;
+        delete_GNode(item);
+        free(temp);
+        da->size -= 1;
+        return 1;
+    }
+
+    while (temp != NULL && strcmp(item->key, temp->data->key) == 0)
+    {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp == NULL)
+    {
+        return 0;
+    }
+
+    prev->next = temp->next;
+    delete_GNode(item);
+    free(temp);
+    da->size -= 1;
+    return 1;
 }
 
 DynamicArray *resize(DynamicArray *da)
@@ -54,6 +90,7 @@ DynamicArray *resize(DynamicArray *da)
         }
         */
         memset(da->arr + da->capacity, NULL, da->capacity * GROWTH_MULTIPLIER);
+        da->capacity *= GROWTH_MULTIPLIER; 
         return da;
     }
     else
@@ -62,14 +99,13 @@ DynamicArray *resize(DynamicArray *da)
     }
 }
 
-void _delete_List(ListNode **head)
+void delete_List(ListNode **head)
 {
     ListNode *temp;
     while (*head != NULL)
     {
         temp = (*head)->next;
-        free((*head)->data);
-        (*head)->data = NULL;
+        delete_GNode((*head)->data);
         free(*head);
         *head = temp;
     }

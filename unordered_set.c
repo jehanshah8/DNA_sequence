@@ -1,3 +1,4 @@
+/**
 #include "unordered_set.h"
 
 int getval(char c);
@@ -60,13 +61,43 @@ void UnorderedSet_insert(UnorderedSet *set, char *key, int key_len)
     GNode *nd = find(set, key, key_len);
     if (nd == NULL)
     {
-        long index = hash(set, key, key_len);
+        double load_factor = (double)set->num_elements / set->num_buckets;
+        long index;
+
+        // resize if needed
+        if (load_factor > MAX_LOAD_FACTOR)
+        {
+            set->table = resize_DynamicArray(set->table);
+            set->num_buckets *= GROWTH_MULTIPLIER;
+
+            ListNode *temp = NULL;
+            GNode *nd = NULL;
+            for (int i = 0; i < set->num_buckets / GROWTH_MULTIPLIER; i++)
+            {
+                temp = set->table->arr[i]; 
+                while (nd != NULL)
+                {
+                    temp = (*head)->next;
+                    delete_GNode((*head)->data);
+                    free(*head);
+                    *head = temp;
+                }
+                index = hash(set, key, key_len);
+                DynamicArray_insert(set->table, index, nd);
+            }
+        }
+
+        index = hash(set, key, key_len);
         nd = create_GNode(key, key_len);
-        DynamicArray_insert(set->table, index, nd);
+        set->num_elements += DynamicArray_insert(set->table, index, nd);
     }
 }
 
-void remove(long key);
+void UnorderedSet_remove(UnorderedSet *set, GNode *nd)
+{
+    long index = hash(set, nd->key, nd->key_len);
+    set->num_elements -= DynamicArray_remove(set->table, index, nd);
+}
 
 GNode *find(UnorderedSet *set, char *key, int key_len)
 {
@@ -91,3 +122,4 @@ void delete_UnorderedSet(UnorderedSet *set)
     delete_DynamicArray(set->table);
     *set = (UnorderedSet){.table = NULL, .num_buckets = -1, .num_elements = 0};
 }
+*/
