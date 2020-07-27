@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <stdio.h>
 
 #define MAX_LOAD_FACTOR 1.5
 #define GROWTH_MULTIPLIER 2
@@ -32,9 +33,9 @@ UnorderedSet *init_UnorderedSet(size_t num_buckets, int key_len);
 long hash(UnorderedSet *set, char *key);
 GraphNode *find_GraphNode(UnorderedSet *set, char *key);
 int insert_GraphNode(UnorderedSet **a_set, char *key);
-int insert_out_edge(GraphNode* nd); 
 void resize_set(UnorderedSet **a_set);
 int remove_GraphNode(UnorderedSet **a_set, char* key);
 void delete_UnorderedSet(UnorderedSet **a_set);
+int is_hub_node(GraphNode* nd); 
 
 #endif //__GENOME_H_
