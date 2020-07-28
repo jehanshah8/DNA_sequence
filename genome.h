@@ -6,7 +6,7 @@
 #include <limits.h>
 #include <stdio.h>
 
-#define MAX_LOAD_FACTOR 1.5
+#define MAX_LOAD_FACTOR 2
 #define GROWTH_MULTIPLIER 2
 
 typedef struct _Node
@@ -32,12 +32,8 @@ typedef struct
 UnorderedSet *init_UnorderedSet(size_t num_buckets, int key_len);
 long hash(UnorderedSet *set, char *key);
 GraphNode *find_GraphNode(UnorderedSet *set, char *key);
-int insert_GraphNode(UnorderedSet **a_set, char *key);
-void add_edge(UnorderedSet** a_set, char* from, char* to);
-void resize_set(UnorderedSet **a_set);
-int remove_GraphNode(UnorderedSet **a_set, char* key);
+int UnorderedSet_insert(UnorderedSet **a_set, char *key);
+int UnorderedSet_remove(UnorderedSet **a_set, char* key);
 void delete_UnorderedSet(UnorderedSet **a_set);
-int is_hub_node(GraphNode* nd); 
-char *get_next_key(UnorderedSet* set, GraphNode* curr_nd, char* next_key);
 
 #endif //__GENOME_H_
