@@ -41,13 +41,15 @@ int main(int argc, char **argv)
 
             FILE *pc_file_ptr = NULL;
             pc_file_ptr = fopen(partial_credit_filename, "w");
+            
             if (pc_file_ptr == NULL)
             {
                 printf("ERROR: Unable to open file\n");
             }
+
             int is_unique;
 
-            printf("Reading lines\n");
+            //printf("Reading lines\n");
             // for each line in the file, read into buffer and then do graph stuff
             size_t num_reads;
             int buffer_size = BUFFER_SIZE;
@@ -64,7 +66,7 @@ int main(int argc, char **argv)
                     buffer = realloc(buffer, sizeof(*buffer) * buffer_size * 2);
                     if (buffer != NULL)
                     {
-                        printf("Resizing buffer for input\n");
+                        //printf("Resizing buffer for input\n");
                         fgets(buffer + in_str_len, buffer_size + 1, in_file_ptr);
                         buffer_size = buffer_size * 2;
                         in_str_len = strlen(buffer);
@@ -96,9 +98,10 @@ int main(int argc, char **argv)
                     }
                     strcpy(prev_key, key);
                 }
+                
             }
-            printf("%ld lines read from file\n", num_reads);
-            printf("Created graph with %ld nodes\n", graph->num_elements);
+            //printf("%ld lines read from file\n", num_reads);
+            //printf("Created graph with %ld nodes\n", graph->num_elements);
             fclose(in_file_ptr);
             fclose(pc_file_ptr);
             free(key);
@@ -114,16 +117,16 @@ int main(int argc, char **argv)
             char *next_key = malloc(sizeof(*next_key) * (key_len + 1));
             int traversal_length = 0;
 
-            printf("Beginning traversal\n");
+            //printf("Beginning traversal\n");
             
             for (size_t bucket = 0; bucket < graph->num_buckets; bucket++)
             {
-                //printf("bucket %ld\n", bucket);
-                //printf("\tkey    in    out\n");
+                //printf("bucket %ld: key    in    out\n", bucket);
+                //printf("\t\n");
                 head = graph->table[bucket];
                 while (head != NULL)
                 {
-                    //printf("\t%s     %d     %d\n", head->key, head->in_degree, head->out_degree);
+                    //printf("\t   %s     %d     %d\n", head->key, head->in_degree, head->out_degree);
 
                     if (is_hub_node(head) == 1 && head->out_degree > 0)
                     {
@@ -160,7 +163,7 @@ int main(int argc, char **argv)
                                         buffer = realloc(buffer, sizeof(*buffer) * buffer_size * 2);
                                         if (buffer != NULL)
                                         {
-                                            printf("Resizing buffer for output\n");
+                                            //printf("Resizing buffer for output\n");
                                             buffer_size = buffer_size * 2;
                                         }
                                     }
@@ -200,8 +203,8 @@ int main(int argc, char **argv)
                 }
             }
 
-            printf("Completed %d traversals\n", num_traversals);
-            printf("top: %s\n", top(pq)->str);
+            //printf("Completed %d traversals\n", num_traversals);
+            //printf("top: %s\n", top(pq)->str);
 
             //printf("\nAfter sorting\n");
             FILE *out_file_ptr = NULL;
@@ -220,7 +223,7 @@ int main(int argc, char **argv)
                         fprintf(out_file_ptr, "%s\n", out->str);
                     }
                 }
-                printf("%ld lines written to file\n", num_writes); 
+                //printf("%ld lines written to file\n", num_writes); 
             }
 
             fclose(out_file_ptr);
@@ -228,7 +231,7 @@ int main(int argc, char **argv)
             free(next_key);
             delete_PriorityQueue(&pq);
             delete_UnorderedSet(&graph);
-            printf("Goodbye!\n");
+            //printf("Goodbye!\n");
         }
         return EXIT_SUCCESS;
     }

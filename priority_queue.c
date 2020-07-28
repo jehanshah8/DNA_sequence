@@ -27,7 +27,7 @@ PriorityQueue *init_PriorityQueue(size_t initial_size)
 
 void resize_pq(PriorityQueue **a_pq)
 {
-    printf("Resizing priority queue\n");
+    //printf("Resizing priority queue\n");
     size_t new_size = (*a_pq)->capacity * GROWTH_MULTIPLIER;
     if (new_size <= (*a_pq)->capacity)
     {
@@ -126,7 +126,7 @@ OutString *PriorityQueue_remove(PriorityQueue **a_pq)
 
         // put last item into top
         (*a_pq)->items[0] = (*a_pq)->items[(*a_pq)->size - 1];
-        (*a_pq)->items[(*a_pq)->size - 1] = top; 
+        (*a_pq)->items[(*a_pq)->size - 1] = top;
         (*a_pq)->size -= 1;
 
         downward_heapify(a_pq, 0);
@@ -192,9 +192,9 @@ void downward_heapify(PriorityQueue **a_pq, size_t start)
                     idx_left_child = 2 * i + 1;
                     idx_right_child = 2 * i + 2;
                 }
-                else 
+                else
                 {
-                    break; 
+                    break;
                 }
             }
             else
@@ -207,7 +207,6 @@ void downward_heapify(PriorityQueue **a_pq, size_t start)
                 idx_right_child = 2 * i + 2;
             }
         }
-        //printf("stuck");
     }
 
     (*a_pq)->items[i] = temp;
@@ -215,36 +214,22 @@ void downward_heapify(PriorityQueue **a_pq, size_t start)
 
 void delete_OutString(OutString **a_out_str)
 {
+    free((*a_out_str)->str);
+    (*a_out_str)->str = NULL;
 
-    if (*a_out_str != NULL)
-    {
-        free((*a_out_str)->str);
-        (*a_out_str)->str = NULL;
-
-        free(*a_out_str);
-        *a_out_str = NULL;
-    }
+    free(*a_out_str);
+    *a_out_str = NULL;
 }
 
 void delete_PriorityQueue(PriorityQueue **a_pq)
 {
-    //printf("%ld\n", (*a_pq)->capacity);
     for (size_t i = 0; i < (*a_pq)->capacity; i++)
     {
-        delete_OutString(&((*a_pq)->items[i]));
-
-        /**
-        if ((*a_pq)->items[i] != NULL)
+        if ((*a_pq)->items[i] == NULL)
         {
-            printf("%ld: ", i);
-            printf("deleting %s\n", (*a_pq)->items[i]->str);
-            free((*a_pq)->items[i]->str);
-            //(*a_pq)->items[i]->str = NULL;
-
-            free((*a_pq)->items[i]);
-            //(*a_pq)->items[i] = NULL;
+            break; 
         }
-        */
+        delete_OutString(&((*a_pq)->items[i]));
     }
 
     free((*a_pq)->items);

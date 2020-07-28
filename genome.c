@@ -133,7 +133,7 @@ int UnorderedSet_insert(UnorderedSet **a_set, char *key)
 
 void resize_set(UnorderedSet **a_set)
 {
-    printf("Resizing graph\n");
+    //printf("Resizing graph\n");
     UnorderedSet *new_set = init_UnorderedSet((*a_set)->num_buckets * GROWTH_MULTIPLIER, (*a_set)->key_len);
     if (new_set != NULL)
     {
