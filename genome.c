@@ -2,6 +2,7 @@
 
 // helpers
 int getval(char c);
+void resize_set(UnorderedSet **a_set);
 void delete_GraphNode(GraphNode **a_nd);
 void delete_List(GraphNode **a_head);
 
@@ -79,7 +80,7 @@ GraphNode *find_GraphNode(UnorderedSet *set, char *key)
     return temp;
 }
 
-int insert_GraphNode(UnorderedSet **a_set, char *key)
+int UnorderedSet_insert(UnorderedSet **a_set, char *key)
 {
     GraphNode *nd = find_GraphNode((*a_set), key);
     if (nd == NULL)
@@ -106,7 +107,10 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
                 .next = NULL};
 
             nd->key = malloc(sizeof(*(nd->key)) * ((*a_set)->key_len + 1));
-            strcpy(nd->key, key);
+            if (nd->key != NULL)
+            {
+                strcpy(nd->key, key);
+            }
 
             long index = hash(*a_set, key);
             // link it to last if last exists
@@ -127,83 +131,6 @@ int insert_GraphNode(UnorderedSet **a_set, char *key)
     return 0;
 }
 
-void add_edge(UnorderedSet **a_set, char *from, char *to)
-{
-    // fix out edge of from
-    GraphNode *temp = find_GraphNode(*a_set, from);
-    if (temp != NULL)
-    {
-        switch (to[(*a_set)->key_len - 1])
-        {
-        case 'A':
-            if (temp->out_edges[0] != 'A')
-            {
-                temp->out_edges[0] = 'A';
-                temp->out_degree += 1;
-            }
-            break;
-        case 'C':
-            if (temp->out_edges[1] != 'C')
-            {
-                temp->out_edges[1] = 'C';
-                temp->out_degree += 1;
-            }
-            break;
-        case 'G':
-            if (temp->out_edges[2] != 'G')
-            {
-                temp->out_edges[2] = 'G';
-                temp->out_degree += 1;
-            }
-            break;
-        case 'T':
-            if (temp->out_edges[3] != 'T')
-            {
-                temp->out_edges[3] = 'T';
-                temp->out_degree += 1;
-            }
-            break;
-        }
-    }
-
-    // fix in edge of to
-    temp = find_GraphNode(*a_set, to);
-    if (temp != NULL)
-    {
-        switch (from[0])
-        {
-        case 'A':
-            if (temp->in_edges[0] != 'A')
-            {
-                temp->in_edges[0] = 'A';
-                temp->in_degree += 1;
-            }
-            break;
-        case 'C':
-            if (temp->in_edges[1] != 'C')
-            {
-                temp->in_edges[1] = 'C';
-                temp->in_degree += 1;
-            }
-            break;
-        case 'G':
-            if (temp->in_edges[2] != 'G')
-            {
-                temp->in_edges[2] = 'G';
-                temp->in_degree += 1;
-            }
-            break;
-        case 'T':
-            if (temp->in_edges[3] != 'T')
-            {
-                temp->in_edges[3] = 'T';
-                temp->in_degree += 1;
-            }
-            break;
-        }
-    }
-}
-
 void resize_set(UnorderedSet **a_set)
 {
     printf("Resizing graph\n");
@@ -213,7 +140,7 @@ void resize_set(UnorderedSet **a_set)
         GraphNode *temp = NULL;
         GraphNode *next = NULL;
         long index;
-        for (int i = 0; i < (*a_set)->num_buckets; i++)
+        for (size_t i = 0; i < (*a_set)->num_buckets; i++)
         {
             temp = (*a_set)->table[i];
             while (temp != NULL)
@@ -243,6 +170,7 @@ void resize_set(UnorderedSet **a_set)
             }
             (*a_set)->table[i] = temp;
         }
+        new_set->num_elements = (*a_set)->num_elements;
     }
 
     // delete old set
@@ -259,7 +187,7 @@ void delete_GraphNode(GraphNode **a_nd)
     *a_nd = NULL;
 }
 
-int remove_GraphNode(UnorderedSet **a_set, char *key)
+int UnorderedSet_remove(UnorderedSet **a_set, char *key)
 {
     long index = hash(*a_set, key);
     GraphNode *temp = (*a_set)->table[index];
@@ -297,7 +225,7 @@ void delete_List(GraphNode **a_head)
 
 void delete_UnorderedSet(UnorderedSet **a_set)
 {
-    for (int i = 0; i < (*a_set)->num_buckets; i++)
+    for (size_t i = 0; i < (*a_set)->num_buckets; i++)
     {
         delete_List(&((*a_set)->table[i]));
     }
@@ -308,29 +236,3 @@ void delete_UnorderedSet(UnorderedSet **a_set)
     *a_set = NULL;
 }
 
-int is_hub_node(GraphNode *nd)
-{
-    return (nd->in_degree == 1 && nd->out_degree == 1) ? 0 : 1;
-}
-
-char *get_next_key(UnorderedSet *set, GraphNode *curr_nd, char *next_key)
-{
-    int options[] = {'A', 'C', 'G', 'T'};
-    // calculate partial key of next node
-    strncpy(next_key, curr_nd->key + 1, set->key_len - 1);
-    next_key[set->key_len] = '\0';
-
-    for (int i = 0; i < 4; i++)
-    {
-        if (curr_nd->out_edges[i] == options[i])
-        {
-            next_key[set->key_len - 1] = options[i];
-            break;
-        }
-        else
-        {
-            next_key[set->key_len - 1] = 0;
-        }
-    }
-    return next_key;
-}
