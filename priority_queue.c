@@ -1,18 +1,22 @@
 #include "priority_queue.h"
 
-void resize_pq(PriorityQueue **a_pq);
-void upward_heapify(PriorityQueue **a_pq);
-void downward_heapify(PriorityQueue **a_pq, size_t start);
-void delete_OutString(OutString **a_out_str);
+static void resize_pq(PriorityQueue **a_pq);
+static void upward_heapify(PriorityQueue **a_pq);
+static void downward_heapify(PriorityQueue **a_pq, size_t start);
+static void delete_OutString(OutString **a_out_str);
 
 PriorityQueue *init_PriorityQueue(size_t initial_size)
 {
+    //printf("inital pq size = %ld\n", initial_size); 
     PriorityQueue *pq = malloc(sizeof(*pq));
     if (pq != NULL)
     {
-        *pq = (PriorityQueue){.items = NULL, .capacity = -1, .size = 0};
+        *pq = (PriorityQueue){
+            .items = malloc(sizeof(*(pq->items)) * initial_size),
+            .capacity = -1,
+            .size = 0};
 
-        pq->items = malloc(sizeof(*(pq->items)) * initial_size);
+        //pq->items = malloc(sizeof(*(pq->items)) * initial_size);
         if (pq->items != NULL)
         {
             for (int i = 0; i < initial_size; i++)
@@ -25,14 +29,17 @@ PriorityQueue *init_PriorityQueue(size_t initial_size)
     return pq;
 }
 
-void resize_pq(PriorityQueue **a_pq)
+static void resize_pq(PriorityQueue **a_pq)
 {
-    //printf("Resizing priority queue\n");
+    //printf("**Resizing priority queue\n");
     size_t new_size = (*a_pq)->capacity * GROWTH_MULTIPLIER;
+    
+    // check overflow
     if (new_size <= (*a_pq)->capacity)
     {
         return;
     }
+    //printf("new pq size = %ld\n", new_size);
 
     (*a_pq)->items = realloc((*a_pq)->items, sizeof(*a_pq)->items * new_size);
     if ((*a_pq)->items != NULL)
@@ -74,7 +81,7 @@ int PriorityQueue_insert(PriorityQueue **a_pq, char *str)
     return 0;
 }
 
-void upward_heapify(PriorityQueue **a_pq)
+static void upward_heapify(PriorityQueue **a_pq)
 {
 
     OutString *temp = (*a_pq)->items[(*a_pq)->size - 1];
@@ -134,7 +141,7 @@ OutString *PriorityQueue_remove(PriorityQueue **a_pq)
     return top;
 }
 
-void downward_heapify(PriorityQueue **a_pq, size_t start)
+static void downward_heapify(PriorityQueue **a_pq, size_t start)
 {
     if ((*a_pq)->size <= 0)
     {
@@ -212,7 +219,7 @@ void downward_heapify(PriorityQueue **a_pq, size_t start)
     (*a_pq)->items[i] = temp;
 }
 
-void delete_OutString(OutString **a_out_str)
+static void delete_OutString(OutString **a_out_str)
 {
     free((*a_out_str)->str);
     (*a_out_str)->str = NULL;
@@ -227,7 +234,7 @@ void delete_PriorityQueue(PriorityQueue **a_pq)
     {
         if ((*a_pq)->items[i] == NULL)
         {
-            break; 
+            break;
         }
         delete_OutString(&((*a_pq)->items[i]));
     }

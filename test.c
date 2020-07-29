@@ -6,13 +6,15 @@
 #include "unordered_set.h"
 #include "priority_queue.h"
 
-void add_edge(UnorderedSet **a_set, char *from, char *to);
-int is_hub_node(GraphNode *nd);
-char *get_next_key(UnorderedSet *set, GraphNode *curr_nd, char *next_key);
+static void add_edge(UnorderedSet **a_set, char *from, char *to);
+static int is_hub_node(GraphNode *nd);
+static char *get_next_key(UnorderedSet *set, GraphNode *curr_nd, char *next_key);
 static int power(int base, int power);
 
 #define MAX_KEY_LENGTH 12
 #define BUFFER_SIZE 128
+#define INITIAL_GRAPH_SIZE 0.5
+#define INITIAL_PQ_SIZE 64
 
 const int options[] = {'A', 'C', 'G', 'T'};
 
@@ -32,8 +34,8 @@ int main(int argc, char **argv)
         if (in_file_ptr != NULL)
         {
             //printf("Opened file to read\n");
-            
-            size_t initial_graph_size = power(4, key_len) * 0.5; 
+            size_t initial_graph_size = (size_t)(power(4, key_len) * 0.5); 
+            //(size_t)(INITIAL_GRAPH_SIZE * power(4, key_len))
             UnorderedSet *graph = init_UnorderedSet(initial_graph_size, key_len);
             char *buffer = malloc(sizeof(*buffer) * BUFFER_SIZE);
             char *key = malloc(sizeof(*key) * (key_len + 1));
@@ -50,7 +52,7 @@ int main(int argc, char **argv)
 
             int is_unique;
 
-            //printf("Reading lines\n");
+            printf("Reading lines\n");
             // for each line in the file, read into buffer and then do graph stuff
             size_t num_reads;
             int buffer_size = BUFFER_SIZE;
@@ -101,8 +103,8 @@ int main(int argc, char **argv)
                 }
                 
             }
-            //printf("%ld lines read from file\n", num_reads);
-            //printf("Created graph with %ld nodes\n", graph->num_elements);
+            printf("%ld lines read from file\n", num_reads);
+            printf("Created graph with %ld nodes\n", graph->num_elements);
             fclose(in_file_ptr);
             fclose(pc_file_ptr);
             free(key);
@@ -118,7 +120,7 @@ int main(int argc, char **argv)
             char *next_key = malloc(sizeof(*next_key) * (key_len + 1));
             int traversal_length = 0;
 
-            //printf("Beginning traversal\n");
+            printf("Beginning traversal\n");
             
             for (size_t bucket = 0; bucket < graph->num_buckets; bucket++)
             {
@@ -204,7 +206,7 @@ int main(int argc, char **argv)
                 }
             }
 
-            //printf("Completed %d traversals\n", num_traversals);
+            printf("Completed %d traversals\n", num_traversals);
             //printf("top: %s\n", top(pq)->str);
 
             //printf("\nAfter sorting\n");
@@ -215,8 +217,7 @@ int main(int argc, char **argv)
                 size_t num_writes = 0; 
                 for (int i = 0; i < pq->capacity; i++)
                 {
-                    OutString* out = PriorityQueue_remove(&pq); 
-                    //printf("stuck"); 
+                    OutString* out = PriorityQueue_remove(&pq);  
                     if (out != NULL) 
                     {
                         num_writes++;
@@ -224,7 +225,7 @@ int main(int argc, char **argv)
                         fprintf(out_file_ptr, "%s\n", out->str);
                     }
                 }
-                //printf("%ld lines written to file\n", num_writes); 
+                printf("%ld lines written to file\n", num_writes); 
             }
 
             fclose(out_file_ptr);
@@ -232,7 +233,7 @@ int main(int argc, char **argv)
             free(next_key);
             delete_PriorityQueue(&pq);
             delete_UnorderedSet(&graph);
-            //printf("Goodbye!\n");
+            printf("Goodbye!\n");
         }
         return EXIT_SUCCESS;
     }
@@ -240,7 +241,7 @@ int main(int argc, char **argv)
     return EXIT_FAILURE;
 }
 
-void add_edge(UnorderedSet **a_set, char *from, char *to)
+static void add_edge(UnorderedSet **a_set, char *from, char *to)
 {
     // fix out edge of from
     GraphNode *temp = find_GraphNode(*a_set, from);
@@ -317,12 +318,12 @@ void add_edge(UnorderedSet **a_set, char *from, char *to)
     }
 }
 
-int is_hub_node(GraphNode *nd)
+static int is_hub_node(GraphNode *nd)
 {
     return (nd->in_degree == 1 && nd->out_degree == 1) ? 0 : 1;
 }
 
-char *get_next_key(UnorderedSet *set, GraphNode *curr_nd, char *next_key)
+static char *get_next_key(UnorderedSet *set, GraphNode *curr_nd, char *next_key)
 {
 
     // calculate partial key of next node
