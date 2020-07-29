@@ -43,11 +43,6 @@ int main(int argc, char **argv)
             FILE *pc_file_ptr = NULL;
             pc_file_ptr = fopen(partial_credit_filename, "w");
             
-            if (pc_file_ptr == NULL)
-            {
-                printf("ERROR: Unable to open file\n");
-            }
-
             int is_unique;
 
             //printf("Reading lines\n");
@@ -210,7 +205,7 @@ int main(int argc, char **argv)
             //printf("\nAfter sorting\n");
             FILE *out_file_ptr = NULL;
             out_file_ptr = fopen(output_filename, "w");
-            if (pc_file_ptr != NULL)
+            if (out_file_ptr != NULL)
             {
                 size_t num_writes = 0; 
                 for (int i = 0; i < pq->capacity; i++)
