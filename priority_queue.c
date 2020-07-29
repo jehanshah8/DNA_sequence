@@ -7,7 +7,7 @@ static void delete_OutString(OutString **a_out_str);
 
 PriorityQueue *init_PriorityQueue(size_t initial_size)
 {
-    //printf("inital pq size = %ld\n", initial_size); 
+    //printf("inital pq size = %ld\n", initial_size);
     PriorityQueue *pq = malloc(sizeof(*pq));
     if (pq != NULL)
     {
@@ -33,7 +33,7 @@ static void resize_pq(PriorityQueue **a_pq)
 {
     //printf("**Resizing priority queue\n");
     size_t new_size = (*a_pq)->capacity * GROWTH_MULTIPLIER;
-    
+
     // check overflow
     if (new_size <= (*a_pq)->capacity)
     {
@@ -88,29 +88,23 @@ static void upward_heapify(PriorityQueue **a_pq)
     size_t idx_child = (*a_pq)->size - 1;
     size_t idx_parent = (idx_child - 1) / 2;
 
-    while (idx_child > 0 && temp->length > (*a_pq)->items[idx_parent]->length)
+    while (idx_child > 0 && (*a_pq)->items[idx_parent]->length < temp->length)
     {
-        if (temp->length == (*a_pq)->items[idx_parent]->length)
-        {
-            // if new item does comes first alphabetically
-            //child       //parent
-            if (strcmp(temp->str, (*a_pq)->items[idx_parent]->str) < 0)
-            {
-                // swap
-                (*a_pq)->items[idx_child] = (*a_pq)->items[idx_parent];
-                idx_child = idx_parent;
-                idx_parent = (idx_child - 1) / 2;
-            }
-        }
-        else
-        {
-            // swap
-            (*a_pq)->items[idx_child] = (*a_pq)->items[idx_parent];
-            idx_child = idx_parent;
-            idx_parent = (idx_child - 1) / 2;
-        }
+        // swap
+        (*a_pq)->items[idx_child] = (*a_pq)->items[idx_parent];
+        idx_child = idx_parent;
+        idx_parent = (idx_child - 1) / 2;
     }
 
+    while (idx_child > 0 &&
+           temp->length == (*a_pq)->items[idx_parent]->length &&
+           strcmp(temp->str, (*a_pq)->items[idx_parent]->str) < 0)
+    {
+        // swap
+        (*a_pq)->items[idx_child] = (*a_pq)->items[idx_parent];
+        idx_child = idx_parent;
+        idx_parent = (idx_child - 1) / 2;
+    }
     (*a_pq)->items[idx_child] = temp;
 }
 
@@ -154,7 +148,7 @@ static void downward_heapify(PriorityQueue **a_pq, size_t start)
     size_t idx_right_child = 2 * i + 2;
     size_t idx_largest_child;
 
-    while (idx_left_child < (*a_pq)->size)
+    while (idx_left_child < (*a_pq)->size) // while left child exists
     {
         idx_largest_child = idx_left_child;
 
@@ -162,20 +156,20 @@ static void downward_heapify(PriorityQueue **a_pq, size_t start)
         if (idx_right_child < (*a_pq)->size)
         {
             // which child has greater length
-            if ((*a_pq)->items[idx_right_child]->length >=
+            if ((*a_pq)->items[idx_right_child]->length >
                 (*a_pq)->items[idx_left_child]->length)
             {
-
-                if ((*a_pq)->items[idx_right_child]->length ==
-                    (*a_pq)->items[idx_left_child]->length)
+                idx_largest_child = idx_right_child;
+            }
+            else if ((*a_pq)->items[idx_right_child]->length ==
+                     (*a_pq)->items[idx_left_child]->length)
+            {
+                // if right child is first alphabetically
+                if (strcmp(
+                        (*a_pq)->items[idx_right_child]->str,
+                        (*a_pq)->items[idx_left_child]->str) < 0)
                 {
-                    // if right child is first alphabetically
-                    if (strcmp(
-                            (*a_pq)->items[idx_right_child]->str,
-                            (*a_pq)->items[idx_left_child]->str) < 0)
-                    {
-                        idx_largest_child = idx_right_child;
-                    }
+                    idx_largest_child = idx_right_child;
                 }
             }
         }
@@ -187,32 +181,18 @@ static void downward_heapify(PriorityQueue **a_pq, size_t start)
         else
         {
 
-            if (temp->length == (*a_pq)->items[idx_largest_child]->length)
+            // if equal length and temp comes first alphabetically
+            if (temp->length == (*a_pq)->items[idx_largest_child]->length &&
+                strcmp(temp->str, (*a_pq)->items[idx_largest_child]->str) < 0)
             {
-                // if temp comes second alphabetically
-                if (strcmp(temp->str, (*a_pq)->items[idx_largest_child]->str) > 0)
-                {
-                    // swap
-                    (*a_pq)->items[i] = (*a_pq)->items[idx_largest_child];
-
-                    i = idx_largest_child;
-                    idx_left_child = 2 * i + 1;
-                    idx_right_child = 2 * i + 2;
-                }
-                else
-                {
-                    break;
-                }
+                break;
             }
-            else
-            {
-                // swap
-                (*a_pq)->items[i] = (*a_pq)->items[idx_largest_child];
+            // swap
+            (*a_pq)->items[i] = (*a_pq)->items[idx_largest_child];
 
-                i = idx_largest_child;
-                idx_left_child = 2 * i + 1;
-                idx_right_child = 2 * i + 2;
-            }
+            i = idx_largest_child;
+            idx_left_child = 2 * i + 1;
+            idx_right_child = 2 * i + 2;
         }
     }
 
